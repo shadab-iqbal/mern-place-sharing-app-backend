@@ -48,14 +48,14 @@ app.use((error, req, res, next) => {
     .json({ message: error.message || "An unknown error occurred!" });
 });
 
-console.log("Connecting to MongoDB Atlas Database...");
+console.log("------------\nConnecting to MongoDB Atlas Database...");
 mongoose
   .connect(
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.sg6gbts.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
   )
   .then(() => {
-    app.listen(5001);
-    console.log("Application started\nListening to port: 5001");
+    app.listen(process.env.PORT || 5001);
+    console.log("Application started successfully!\n------------");
   })
   .catch((err) => {
     console.log("Database Connection Error\n", err);
