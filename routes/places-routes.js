@@ -11,9 +11,9 @@ const {
 const fileUpload = require("../middlewares/file-upload");
 const checkAuth = require("../middlewares/check-auth");
 
-const placesRouter = express.Router();
+const router = express.Router();
 
-placesRouter
+router
   .route("/")
   .post(
     checkAuth,
@@ -26,7 +26,7 @@ placesRouter
     createNewPlace
   );
 
-placesRouter
+router
   .route("/:pid")
   .get(getPlaceById)
   .patch(
@@ -36,6 +36,6 @@ placesRouter
   )
   .delete(checkAuth, deletePlaceById);
 
-placesRouter.route("/user/:uid").get(getPlacesByUserId);
+router.route("/user/:uid").get(getPlacesByUserId);
 
-module.exports = placesRouter;
+module.exports = router;

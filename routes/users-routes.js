@@ -4,11 +4,11 @@ const { body } = require("express-validator");
 const { getAllUsers, signup, login } = require("../controllers/users-controller");
 const fileUpload = require("../middlewares/file-upload");
 
-const usersRouter = express.Router();
+const router = express.Router();
 
-usersRouter.route("/").get(getAllUsers);
+router.route("/").get(getAllUsers);
 
-usersRouter
+router
   .route("/signup")
   .post(
     fileUpload.single("image"),
@@ -21,6 +21,6 @@ usersRouter
   );
 
 // we dont need to validate the email and password here because it will be validated anyway for the login
-usersRouter.route("/login").post(login);
+router.route("/login").post(login);
 
-module.exports = usersRouter;
+module.exports = router;
