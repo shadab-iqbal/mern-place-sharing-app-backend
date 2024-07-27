@@ -1,15 +1,16 @@
-const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
 
-const placesRoutes = require("./routes/places-routes");
-const usersRoutes = require("./routes/users-routes");
-const HttpError = require("./models/http-error");
+const connectDB = require("./db");
+const placesRouter = require("./routes/places-routes");
+const usersRouter = require("./routes/users-routes");
+const errorHandler = require("./middlewares/error-handler");
+const routeNotFoundHandler = require("./middlewares/route-not-found-handler");
 
 const app = express();
 
+// using CORS, JSON and urlencoded middlewares
 app.use(cors());
 app.use(express.json());
 app.use(
@@ -18,45 +19,23 @@ app.use(
   })
 );
 
+// serve static files from the "uploads/images" folder
 app.use("/assets/uploads/images", express.static(path.join(__dirname, "uploads", "images")));
 
-app.use("/api/places", placesRoutes); // => /api/places/...
-app.use("/api/users", usersRoutes); // => /api/users/...
+// handing the routes for Places and Users resources
+app.use("/api/places", placesRouter);
+app.use("/api/users", usersRouter);
 
 // this middleware will only be reached if no previous middlewares sent a res.json() response
-app.use((req, res, next) => {
-  const error = new HttpError("Could not find this route.", 404);
-  next(error);
-});
+app.use(routeNotFoundHandler);
 
-// this middleware will be executed for any request that has
-// an error attached to it by the other above middlewares
-app.use((error, req, res, next) => {
-  if (req.file) {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
-  }
+// this middleware will be executed for any request that has an error attached to it by the other above middlewares
+app.use(errorHandler);
 
-  // If the response has already been sent, forward the error to the next middleware
-  if (res.headerSent) {
-    return next(error);
-  }
-
-  res
-    .status(error.statusCode || 500)
-    .json({ message: error.message || "An unknown error occurred!" });
-});
-
-console.log("------------\nConnecting to MongoDB Atlas Database...");
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.sg6gbts.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
-  )
-  .then(() => {
-    app.listen(process.env.PORT || 5001);
-    console.log("Application started successfully!\n------------");
-  })
-  .catch((err) => {
-    console.log("Database Connection Error\n", err);
+// Connect to MongoDB and start server
+connectDB().then(() => {
+  app.listen(process.env.PORT || 5001, () => {
+    console.log(`Server running on port ${process.env.PORT || 5001}`);
+    console.log("------------");
   });
+});
