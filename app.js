@@ -1,6 +1,7 @@
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 
 const connectDB = require("./db");
 const placesRouter = require("./routes/places-routes");
@@ -9,6 +10,9 @@ const errorHandler = require("./middlewares/error-handler");
 const routeNotFoundHandler = require("./middlewares/route-not-found-handler");
 
 const app = express();
+
+// using Morgan middleware for dev logging
+app.use(morgan("dev"));
 
 // using CORS, JSON and urlencoded middlewares
 app.use(cors());
